@@ -6,7 +6,7 @@
         <v-list-item-group>
             <v-list-item v-for="(track, i) in playlist" :key="i">
                 <v-hover>
-                    <v-icon slot-scope="{ hover }" :class="`${ hover ? 'green--text': '' }`">
+                    <v-icon slot-scope="{ hover }" :class="`${ hover ? 'green--text': '' }`" @click="playFromPlaylist(i)">
                         mdi-play
                     </v-icon>
                 </v-hover>
@@ -33,6 +33,15 @@ export default {
         axios.get('http://192.168.1.20:5000/get-playlist').then((response) => {
             this.playlist = response.data;
         });
+    },
+    methods: {
+        playFromPlaylist(index) {
+            console.log(`Play ${index}`)
+            const selected = this.playlist[index];
+            axios.get(`http://192.168.1.20:5000/play-from-list/${selected[0]}/${selected[1]}/${selected[3]}`).then(() => {
+                console.log(['Playing']);
+            });
+        }
     }
 }
 </script>
