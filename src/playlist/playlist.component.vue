@@ -60,17 +60,15 @@ export default {
         disabled: false
       };
     },
-    playlist() {
-      return this.$store.state.playlist;
+    playlist: {
+      get() {
+        return this.$store.state.playlist;
+      },
+      set(newlist) {
+        this.$store.commit("resetPlaylist", newlist);
+      }
     }
   },
-
-  // created() {
-  //   axios.get("http://192.168.1.20:5000/get-playlist").then(response => {
-  //     this.playlist = response.data;
-  //   });
-  // },
-
   methods: {
     endDrag() {
       this.drag = false;

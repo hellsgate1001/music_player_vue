@@ -21,6 +21,12 @@ const store = new Vuex.Store({
     },
     removeSingleFromPlaylist(state, playlistPosition) {
       state.playlist.splice(playlistPosition, 1);
+    },
+    resetPlaylist(state, newlist = null) {
+      state.playlist = [];
+      if (newlist) {
+        state.playlist = newlist;
+      }
     }
   }
 });
