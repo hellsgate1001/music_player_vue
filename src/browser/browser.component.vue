@@ -70,7 +70,7 @@
                 </v-menu>
               </v-subheader>
               <v-list-item-group>
-                <v-list-item v-for="(song, i) in songs" :key="song[0]">
+                <v-list-item v-for="(song, i) in songs" :key="song[3]">
                   <v-hover>
                     <v-icon
                       slot-scope="{ hover }"
@@ -82,7 +82,7 @@
                   <v-icon
                     style="margin-right: 0.3em;"
                     :class="{ 'd-none': !plus[i] }"
-                    :data-tracknum="song[0]"
+                    :data-tracknum="song[3]"
                     @click="addToPlaylist(i, $event)"
                   >
                     mdi-plus
@@ -90,12 +90,12 @@
                   <v-icon
                     style="margin-right: 0.3em;"
                     :class="{ 'd-none': plus[i] }"
-                    :data-tracknum="song[0]"
+                    :data-tracknum="song[3]"
                     @click="removeFromPlaylist(i)"
                   >
                     mdi-minus
                   </v-icon>
-                  {{ song[0] }}: {{ song[1] }}
+                  {{ song[3] }}: {{ song[2] }}
                 </v-list-item>
               </v-list-item-group>
             </v-list>
@@ -103,7 +103,6 @@
         </v-stepper-items>
       </v-stepper>
     </v-container>
-
   </div>
 </template>
 
@@ -132,6 +131,11 @@ export default {
   },
   methods: {
     addAll() {
+      this.$store.commit("addMultipleToPlaylist", this.songs);
+      for (let i in this.plus) {
+        this.plus[i] = false;
+      }
+      this.$forceUpdate();
       axios
         .get(
           `http://192.168.1.20:5000/add-album-to-playlist/${this.artist}/${this.album}`
@@ -141,15 +145,51 @@ export default {
         });
     },
     addToPlaylist(i, event) {
+      this.$store.commit("addSingleToPlaylist", this.songs[i]);
+      this.plus[i] = false;
+      this.$forceUpdate();
       const tracknum = event.target.getAttribute("data-tracknum");
       axios
         .get(
           `http://192.168.1.20:5000/add-to-playlist/${this.artist}/${this.album}/${tracknum}`
         )
-        .then(() => {
-          this.plus[i] = false;
-          this.$forceUpdate();
-        });
+        .then(() => {});
+    },
+    arrayItemsMatch(arr1, arr2) {
+      let result = true;
+      for (let i in arr1) {
+        if (arr1[i] !== arr2[i]) {
+          result = false;
+        }
+      }
+      return result;
+    },
+    indexInArray(arr, item) {
+      for (let i = 0, len = arr.length; i < len; i++) {
+        if (
+          arr[i].length == item.length &&
+          this.arrayItemsMatch(arr[i], item)
+        ) {
+          return i;
+        }
+      }
+      return -1;
+    },
+    isArrayInArray(arr, item) {
+      const item_as_string = JSON.stringify(item);
+
+      const contains = arr.some(function(ele) {
+        return JSON.stringify(ele) === item_as_string;
+      });
+      return contains;
+    },
+    calculatePlus() {
+      this.plus = [];
+      this.songs.forEach((song, i) => {
+        this.plus[i] = !this.isArrayInArray(this.$store.state.playlist, song);
+      });
+      console.log(this.plus);
+      this.$forceUpdate();
     },
     getAlbums(artist) {
       this.artist = artist;
@@ -166,25 +206,33 @@ export default {
           this.songs = response.data;
           this.e1 = 3;
 
-          this.plus = [];
-          this.minus = [];
-          const numSongs = this.songs.length;
-          for (let i = 0; i < numSongs; i++) {
-            this.plus[i] = true;
-          }
+          this.calculatePlus();
         });
     },
     playAlbum() {
-      axios.get(`http://192.168.1.20:5000/play-album/${this.artist}/${this.album}`).then(() => {
-        console.log('Playing Album');
-      });
+      axios
+        .get(`http://192.168.1.20:5000/play-album/${this.artist}/${this.album}`)
+        .then(() => {
+          console.log("Playing Album");
+        });
     },
     removeFromPlaylist(i) {
+      const playlistPosition = this.indexInArray(
+        this.$store.state.playlist,
+        this.songs[i]
+      );
+      const song = this.$store.state.playlist[playlistPosition];
+      this.$store.commit("removeSingleFromPlaylist", playlistPosition);
       this.plus[i] = true;
       this.$forceUpdate();
-      axios.get("http://192.168.1.20:5000/get-medialist").then(response => {
-        console.log(response);
-      });
+      console.log(song);
+      axios
+        .get(
+          `http://192.168.1.20:5000/remove-from-playlist/${song[0]}/${song[1]}/${song[3]}`
+        )
+        .then(response => {
+          console.log(response);
+        });
     }
   }
 };

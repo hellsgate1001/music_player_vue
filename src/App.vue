@@ -3,7 +3,7 @@
     <v-banner>
       <span class="headline">The Wilson Jukebox</span>
       <template v-slot:actions>
-        <v-btn text v-for="route in validDisplayRoutes" :key="route.name" @click="$router.push(route.name)">
+        <v-btn text v-for="route in validDisplayRoutes" :key="route.name" @click="$router.push(route.path)">
           {{ route.title }}
         </v-btn>
       </template>
