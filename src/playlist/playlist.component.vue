@@ -65,9 +65,7 @@ export default {
     };
   },
   created() {
-    // axios.get("http://192.168.1.20:5000/get-playlist").then(response => {
-    //   this.$store.commit("resetPlaylist", response.data);
-    // });
+    this.$store.commit('setSearch', false);
     this.$store.dispatch("populatePlaylist");
   },
   computed: {

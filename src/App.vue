@@ -3,7 +3,6 @@
     <v-banner>
       <span class="headline">The Wilson Jukebox</span>
       <template v-slot:actions>
-        <search-filter></search-filter>
         <v-btn
           text
           v-for="route in validDisplayRoutes"
@@ -21,14 +20,9 @@
 
 <script>
 /* eslint no-console: 0 */
-import SearchFilter from './searchFilter/searchFilter.component.vue';
 
 export default {
   name: "App",
-
-  components: {
-    SearchFilter
-  },
 
   data: () => {
     return {
@@ -56,9 +50,3 @@ export default {
   }
 };
 </script>
-
-<style>
->>>.v-text-field {
-  margin-top: 0;
-}
-</style>

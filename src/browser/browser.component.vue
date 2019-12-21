@@ -5,8 +5,9 @@
         <v-stepper-items>
           <v-stepper-content step="1">
             <v-list>
-              <v-subheader>
+              <v-subheader :class="`d-flex justify-space-between`">
                 <span class="title">Artists</span>
+                <!-- <search-filter></search-filter> -->
               </v-subheader>
               <v-list-item-group id="artist-group">
                 <v-list-item
@@ -23,7 +24,7 @@
             <v-list>
               <v-subheader>
                 <span class="title">Albums</span>
-                <span style="margin-left: 1em; cursor: pointer;" @click="e1 = 1"
+                <span style="margin-left: 1em; cursor: pointer;" @click="backToArtists()"
                   >Back to artists</span
                 >
               </v-subheader>
@@ -109,9 +110,14 @@
 <script>
 /* eslint no-console: 0 */
 import axios from "axios";
+// import SearchFilter from '../searchFilter/searchFilter.component.vue';
 
 export default {
   name: "Browser",
+
+  // components: {
+  //   SearchFilter
+  // },
 
   data: () => {
     return {
@@ -125,6 +131,8 @@ export default {
     };
   },
   created() {
+    this.e1 = 1;
+    this.$store.commit('setSearch', true);
     axios.get("http://192.168.1.20:5000/artists").then(response => {
       this.artists = response.data;
     });
@@ -170,6 +178,10 @@ export default {
       }
       return result;
     },
+    backToArtists() {
+      this.e1 = 1;
+      this.$store.commit('setSearch', true);
+    },
     indexInArray(arr, item) {
       for (let i = 0, len = arr.length; i < len; i++) {
         if (
@@ -202,6 +214,7 @@ export default {
       axios.get(`http://192.168.1.20:5000/artist/${artist}`).then(response => {
         this.albums = response.data;
         this.e1 = 2;
+        this.$store.commit('setSearch', false);
       });
     },
     getSongs(album) {
@@ -211,6 +224,7 @@ export default {
         .then(response => {
           this.songs = response.data;
           this.e1 = 3;
+          this.$store.commit('setSearch', false);
 
           this.calculatePlus();
         });

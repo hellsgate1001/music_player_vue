@@ -12,7 +12,8 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     playlist: [],
-    searchFilter: ""
+    searchFilter: "",
+    displaySearch: true
   },
   actions: {
     removeFromPlaylist({ commit }, playlistPosition) {
@@ -55,41 +56,6 @@ const store = new Vuex.Store({
   },
   mutations: {
     // Playlist
-    // addMultipleToPlaylist(state, payload) {
-    //   axios
-    //     .get(
-    //       `http://192.168.1.20:5000/add-album-to-playlist/${payload.artist}/${payload.album}`
-    //     )
-    //     .then(response => {
-    //       this.resetPlaylist(response.data);
-    //     });
-    // },
-    // addSingleToPlaylist(state, trackinfo) {
-    //   console.log(arguments);
-    //   const artist = trackinfo[0];
-    //   const album = trackinfo[1];
-    //   const tracknum = trackinfo[3];
-    //   axios
-    //     .get(
-    //       `http://192.168.1.20:5000/add-to-playlist/${artist}/${album}/${tracknum}`
-    //     )
-    //     .then(response => {
-    //       this.resetPlaylist(response.data);
-    //     })
-    //     .catch(error => console.log(error));
-    // },
-    // removeSingleFromPlaylist(state, playlistPosition) {
-    //   axios
-    //     .get(
-    //       `http://192.168.1.20:5000/remove-from-playlist/${playlistPosition}`
-    //     )
-    //     .then(response => {
-    //       state.resetPlaylist(response.data);
-    //       console.log("New Playlist");
-    //       console.log(state.playlist);
-    //       this.$forceUpdate();
-    //     });
-    // },
     resetPlaylist(state, tracks = null) {
       console.log("Reset");
       console.log(tracks);
@@ -98,7 +64,10 @@ const store = new Vuex.Store({
         state.playlist.push(...tracks);
       }
     },
-    // Search Filter
+    // Search
+    setSearch(state, displaySearch) {
+      state.displaySearch = displaySearch;
+    },
     updateSearchFilter(state, filter) {
       state.searchFilter = filter;
     }

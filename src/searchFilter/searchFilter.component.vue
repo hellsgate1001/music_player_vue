@@ -1,10 +1,11 @@
 <template>
-    <v-text-field
-        v-if="displaySearch()"
-        label="Search..."
-        id="search-filter"
-        v-model="searchFilter"
-    ></v-text-field>
+  <v-text-field
+    class=".d-none"
+    v-if="displaySearch"
+    label="Search..."
+    id="search-filter"
+    v-model="searchFilter"
+  ></v-text-field>
 </template>
 
 <script>
@@ -14,6 +15,11 @@ export default {
   name: 'SearchFilter',
 
   computed: {
+    displaySearch: {
+      get() {
+        return this.$store.state.displaySearch;
+      }
+    },
     searchFilter: {
       get() {
         return this.$store.state.searchFilter;
@@ -22,13 +28,22 @@ export default {
         this.$store.commit("updateSearchFilter", newFilter);
       }
     },
-  },
-
-  methods: {
-    displaySearch() {
-      console.log(this.$route);
-      return this.$route.name === 'home';
-    }
   }
 }
 </script>
+
+<style scoped>
+.v-text-field {
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+>>> .v-input__control {
+  position: absolute;
+  right: 1em;
+  width: 20%;
+}
+>>> .v-input__slot {
+  margin-bottom: 0;
+}
+</style>
