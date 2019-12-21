@@ -1,6 +1,6 @@
 <template>
     <v-text-field
-        v-if="displaySearch"
+        v-if="displaySearch()"
         label="Search..."
         id="search-filter"
         v-model="searchFilter"
@@ -8,6 +8,8 @@
 </template>
 
 <script>
+/* eslint no-console: 0 */
+
 export default {
   name: 'SearchFilter',
 
@@ -20,6 +22,13 @@ export default {
         this.$store.commit("updateSearchFilter", newFilter);
       }
     },
+  },
+
+  methods: {
+    displaySearch() {
+      console.log(this.$route);
+      return this.$route.name === 'home';
+    }
   }
 }
 </script>

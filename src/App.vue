@@ -21,7 +21,7 @@
 
 <script>
 /* eslint no-console: 0 */
-import SearchFilter from './searchFilter/searchFilter.component';
+import SearchFilter from './searchFilter/searchFilter.component.vue';
 
 export default {
   name: "App",
@@ -48,10 +48,6 @@ export default {
   },
 
   computed: {
-    displaySearch() {
-      console.log(this.$route);
-      return this.$route.name === 'home';
-    },
     validDisplayRoutes() {
       return this.routes.filter(route => {
         return route.path !== this.$route.path;
