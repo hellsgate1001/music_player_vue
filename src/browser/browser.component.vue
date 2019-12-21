@@ -10,7 +10,7 @@
               </v-subheader>
               <v-list-item-group id="artist-group">
                 <v-list-item
-                  v-for="artist in artists"
+                  v-for="artist in filteredArtists"
                   :key="artist"
                   v-on:click="getAlbums(artist)"
                 >
@@ -83,7 +83,7 @@
                     style="margin-right: 0.3em;"
                     :class="{ 'd-none': !plus[i] }"
                     :data-tracknum="song[3]"
-                    @click="addToPlaylist(i, $event)"
+                    @click="addToPlaylist(i)"
                   >
                     mdi-plus
                   </v-icon>
@@ -129,31 +129,37 @@ export default {
       this.artists = response.data;
     });
   },
+  computed: {
+    filteredArtists() {
+      return this.artists.filter(artist => {
+        return (
+          artist.toLowerCase().indexOf(this.searchFilter.toLowerCase()) > -1
+        );
+      });
+    },
+    searchFilter: {
+      get() {
+        return this.$store.state.searchFilter;
+      }
+    }
+  },
   methods: {
     addAll() {
-      this.$store.commit("addMultipleToPlaylist", this.songs);
+      const commitObj = {
+        songs: this.songs,
+        artist: this.artist,
+        album: this.album
+      };
+      this.$store.dispatch("addMultipleToPlaylist", commitObj);
       for (let i in this.plus) {
         this.plus[i] = false;
       }
       this.$forceUpdate();
-      axios
-        .get(
-          `http://192.168.1.20:5000/add-album-to-playlist/${this.artist}/${this.album}`
-        )
-        .then(() => {
-          console.log("Added");
-        });
     },
-    addToPlaylist(i, event) {
+    addToPlaylist(i) {
       this.$store.commit("addSingleToPlaylist", this.songs[i]);
       this.plus[i] = false;
       this.$forceUpdate();
-      const tracknum = event.target.getAttribute("data-tracknum");
-      axios
-        .get(
-          `http://192.168.1.20:5000/add-to-playlist/${this.artist}/${this.album}/${tracknum}`
-        )
-        .then(() => {});
     },
     arrayItemsMatch(arr1, arr2) {
       let result = true;
@@ -225,7 +231,6 @@ export default {
       this.$store.commit("removeSingleFromPlaylist", playlistPosition);
       this.plus[i] = true;
       this.$forceUpdate();
-      console.log(song);
       axios
         .get(
           `http://192.168.1.20:5000/remove-from-playlist/${song[0]}/${song[1]}/${song[3]}`

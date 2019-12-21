@@ -17,12 +17,26 @@
             :key="`${track[0]}-${track[1]}-${track[3]}`"
           >
             <v-hover>
+              <v-icon @click="removeFromPlaylist(i)">
+                mdi-close
+              </v-icon>
+            </v-hover>
+            <v-hover>
               <v-icon
                 slot-scope="{ hover }"
                 :class="`${hover ? 'green--text' : ''}`"
                 @click="playFromPlaylist(i)"
               >
                 mdi-play
+              </v-icon>
+            </v-hover>
+            <v-hover>
+              <v-icon
+                slot-scope="{ hover }"
+                :class="`${hover ? 'red--text' : ''}`"
+                @click="stopPlayer()"
+              >
+                mdi-stop
               </v-icon>
             </v-hover>
             {{ track[0] }} - {{ track[2] }}
@@ -47,11 +61,15 @@ export default {
 
   data: () => {
     return {
-      // playlist: [],
       drag: false
     };
   },
-
+  created() {
+    // axios.get("http://192.168.1.20:5000/get-playlist").then(response => {
+    //   this.$store.commit("resetPlaylist", response.data);
+    // });
+    this.$store.dispatch("populatePlaylist");
+  },
   computed: {
     dragOptions() {
       return {
@@ -72,25 +90,40 @@ export default {
   methods: {
     endDrag() {
       this.drag = false;
-      console.log(this.playlist);
+      axios
+        .post("http://192.168.1.20:5000/re-order-list", this.playlist, {
+          headers: {
+            "Content-type": "application/json"
+          }
+        })
+        .then(response => {
+          console.log("response");
+          console.log(response.data);
+          this.$store.commit("resetPlaylist", response.data);
+          this.$forceUpdate();
+        });
     },
     modifyDragItem(dataTransfer) {
-      // This prevents a 'ghost' item (different from that referenced bu 'ghostClass')
+      // This prevents a 'ghost' item (different from that referenced by 'ghostClass')
       dataTransfer.setDragImage(document.createElement("div"), 0, 0);
     },
     playFromPlaylist(index) {
-      console.log(`Play ${index}`);
-      const selected = this.playlist[index];
-      axios
-        .get(
-          `http://192.168.1.20:5000/play-from-list/${selected[0]}/${selected[1]}/${selected[3]}`
-        )
-        .then(() => {
-          console.log(["Playing"]);
-        });
+      axios.get(`http://192.168.1.20:5000/play-from-list/${index}`).then(() => {
+        console.log(["Playing"]);
+      });
+    },
+    removeFromPlaylist(index) {
+      // this.$store.commit("removeSingleFromPlaylist", index);
+      this.$store.dispatch("removeFromPlaylist", index);
+      // this.$store.dispatch("populatePlaylist");
     },
     startDrag() {
       this.drag = true;
+    },
+    stopPlayer() {
+      axios.get("http://192.168.1.20:5000/stop").then(() => {
+        console.log("Stopped");
+      });
     }
   }
 };
