@@ -33,6 +33,11 @@ export default {
           title: "Browser"
         },
         {
+          name: "player",
+          path: "/player",
+          title: "Player"
+        },
+        {
           name: "playlist",
           path: "/playlist",
           title: "Playlist"

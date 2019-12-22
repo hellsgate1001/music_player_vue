@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Playlist from "../playlist/playlist.component.vue";
 import Browser from "../browser/browser.component.vue";
+import Player from "../player/player.component.vue";
 
 Vue.use(VueRouter);
 
@@ -19,6 +20,11 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue")
+  },
+  {
+    path: "/player",
+    name: "player",
+    component: Player
   },
   {
     path: "/playlist",
