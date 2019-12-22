@@ -65,7 +65,7 @@ export default {
     };
   },
   created() {
-    this.$store.commit('setSearch', false);
+    this.$store.commit("setSearch", false);
     this.$store.dispatch("populatePlaylist");
   },
   computed: {
@@ -106,14 +106,10 @@ export default {
       dataTransfer.setDragImage(document.createElement("div"), 0, 0);
     },
     playFromPlaylist(index) {
-      axios.get(`http://192.168.1.20:5000/play-from-list/${index}`).then(() => {
-        console.log(["Playing"]);
-      });
+      this.$store.dispatch("playFromPlaylist", index);
     },
     removeFromPlaylist(index) {
-      // this.$store.commit("removeSingleFromPlaylist", index);
       this.$store.dispatch("removeFromPlaylist", index);
-      // this.$store.dispatch("populatePlaylist");
     },
     startDrag() {
       this.drag = true;

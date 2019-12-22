@@ -11,35 +11,23 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
+    currentTrack: 0,
+    displaySearch: true,
+    playerInfo: {},
     playlist: [],
-    searchFilter: "",
-    displaySearch: true
+    searchFilter: ""
   },
   actions: {
-    removeFromPlaylist({ commit }, playlistPosition) {
-      axios
-        .get(
-          `http://192.168.1.20:5000/remove-from-playlist/${playlistPosition}`
-        )
-        .then(response => {
-          commit("resetPlaylist", response.data);
-        });
-    },
-    populatePlaylist({ commit }) {
-      axios.get("http://192.168.1.20:5000/get-playlist").then(response => {
-        commit("resetPlaylist", response.data);
-      });
-    },
-    addMultipleToPlaylist({commit}, payload) {
+    addMultipleToPlaylist({ commit }, payload) {
       axios
         .get(
           `http://192.168.1.20:5000/add-album-to-playlist/${payload.artist}/${payload.album}`
         )
         .then(response => {
-          commit('resetPlaylist', response.data);
+          commit("resetPlaylist", response.data);
         });
     },
-    addSingleToPlaylist({commit}, trackinfo) {
+    addSingleToPlaylist({ commit }, trackinfo) {
       console.log(arguments);
       const artist = trackinfo[0];
       const album = trackinfo[1];
@@ -49,10 +37,43 @@ const store = new Vuex.Store({
           `http://192.168.1.20:5000/add-to-playlist/${artist}/${album}/${tracknum}`
         )
         .then(response => {
-          commit('resetPlaylist', response.data);
+          commit("resetPlaylist", response.data);
         })
         .catch(error => console.log(error));
     },
+    getCurrentTrack({ commit }) {
+      axios
+        .get(`http://192.168.1.20:5000/get-currently-playing`)
+        .then(response => {
+          commit("setCurrentTrack", response.data["current_track_index"]);
+        });
+    },
+    getPlayerInfo({commit}) {
+      axios.get(`http://192.168.1.20:5000/get-player-info`).then((response) => {
+        commit("setPlayerInfo", response.data);
+      });
+    },
+    playFromPlaylist({ commit }, playlistPosition) {
+      axios
+        .get(`http://192.168.1.20:5000/play-from-list/${playlistPosition}`)
+        .then(() => {
+          commit("setCurrentTrack", playlistPosition);
+        });
+    },
+    populatePlaylist({ commit }) {
+      axios.get("http://192.168.1.20:5000/get-playlist").then(response => {
+        commit("resetPlaylist", response.data);
+      });
+    },
+    removeFromPlaylist({ commit }, playlistPosition) {
+      axios
+        .get(
+          `http://192.168.1.20:5000/remove-from-playlist/${playlistPosition}`
+        )
+        .then(response => {
+          commit("resetPlaylist", response.data);
+        });
+    }
   },
   mutations: {
     // Playlist
@@ -63,6 +84,12 @@ const store = new Vuex.Store({
       if (tracks) {
         state.playlist.push(...tracks);
       }
+    },
+    setCurrentTrack(state, currentTrackIndex) {
+      state.currentTrack = currentTrackIndex;
+    },
+    setPlayerInfo(state, playerInfo) {
+      state.playerInfo = playerInfo;
     },
     // Search
     setSearch(state, displaySearch) {

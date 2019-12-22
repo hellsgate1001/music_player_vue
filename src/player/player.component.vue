@@ -16,12 +16,12 @@
 
 <script>
 /* eslint no-console: 0 */
-import PlayerList from './playerList/playerList.component.vue';
-import PlayerControls from './playerControls/playerControls.component.vue';
-import PlayerCurrentInfo from './playerCurrentInfo/playerCurrentInfo.component.vue';
+import PlayerList from "./playerList/playerList.component.vue";
+import PlayerControls from "./playerControls/playerControls.component.vue";
+import PlayerCurrentInfo from "./playerCurrentInfo/playerCurrentInfo.component.vue";
 
 export default {
-  name: 'Player',
+  name: "Player",
 
   components: {
     PlayerList,
@@ -30,8 +30,9 @@ export default {
   },
 
   created() {
-    this.$store.commit('setSearch', false);
+    this.$store.commit("setSearch", false);
     this.$store.dispatch("populatePlaylist");
+    this.$store.dispatch("getCurrentTrack");
   },
   computed: {
     playlist: {
@@ -43,5 +44,5 @@ export default {
       }
     }
   }
-}
+};
 </script>
