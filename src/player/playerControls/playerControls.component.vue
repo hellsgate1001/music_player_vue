@@ -1,44 +1,25 @@
 <template>
   <div>
-    <v-row justify="center" align="center" id="progressRow">
-      <v-progress-circular
-        :indeterminate="indeterminate"
-        :rotate="rotate"
-        :size="size"
-        :value="value"
-        :width="width"
-        color="light-blue"
-      >
-        <div class="display-2 black--text">{{ trackTime }}</div>
-        <div class="headline black--text">{{ trackLength }}</div>
-      </v-progress-circular>
-    </v-row>
     <v-row class="d-flex justify-space-around">
       <v-hover>
         <v-icon
           x-large
           slot-scope="{ hover }"
           :class="`${hover ? 'green--text' : ''}`"
+          @click="previous()"
         >
           mdi-skip-previous
         </v-icon>
       </v-hover>
-      <v-hover v-if="!playing">
+      <v-hover>
         <v-icon
           x-large
           slot-scope="{ hover }"
-          :class="`${hover ? 'green--text' : ''}`"
-          @click="togglePlaying()"
-        >
-          mdi-play
-        </v-icon>
-      </v-hover>
-      <v-hover v-if="playing">
-        <v-icon
-          x-large
-          slot-scope="{ hover }"
-          :class="`${hover ? 'green--text' : ''}`"
-          @click="togglePlaying()"
+          :class="
+            `${(hover ? 'green--text' : '',
+            playing ? '' : 'grey--text text--lighten-2')}`
+          "
+          @click="pause()"
         >
           mdi-pause
         </v-icon>
@@ -47,7 +28,34 @@
         <v-icon
           x-large
           slot-scope="{ hover }"
+          :class="
+            `${(hover ? 'green--text' : '',
+            playing ? 'grey--text text--lighten-2' : '')}`
+          "
+          @click="play()"
+        >
+          mdi-play
+        </v-icon>
+      </v-hover>
+      <v-hover>
+        <v-icon
+          x-large
+          slot-scope="{ hover }"
+          :class="
+            `${(hover ? 'green--text' : '',
+            playing ? '' : 'grey--text text--lighten-2')}`
+          "
+          @click="stop()"
+        >
+          mdi-stop
+        </v-icon>
+      </v-hover>
+      <v-hover>
+        <v-icon
+          x-large
+          slot-scope="{ hover }"
           :class="`${hover ? 'green--text' : ''}`"
+          @click="next()"
         >
           mdi-skip-next
         </v-icon>
@@ -58,22 +66,13 @@
 
 <script>
 /* eslint no-console: 0 */
-import moment from 'moment';
 
 export default {
   name: "PlayerControls",
 
-  data: () => {
-    return {
-      indeterminate: false,
-      playing: false,
-      rotate: 270,
-      value: 100 / 3,
-    };
-  },
   created() {
+    // alert('Loaded controls');
     this.$store.commit("setSearch", false);
-    this.$store.dispatch("getPlayerInfo");
   },
   computed: {
     currentTrack: {
@@ -86,47 +85,51 @@ export default {
         return this.$store.state.playerInfo;
       }
     },
-    size() {
-      // console.log(document.getElementById('progressRow').offsetWidth);
-      return (document.body.clientWidth / 3) * 0.5;
+    playing: {
+      get() {
+        return this.$store.state.playing;
+      }
     },
-    trackLength() {
-      const duration = moment.duration(this.playerInfo['track_length'], 'ms');
-      return `${duration.minutes()}:${this.pad(duration.seconds())}`;
-    },
-    trackTime() {
-      const duration = moment.duration(this.playerInfo['track_time'], 'ms');
-      return `${duration.minutes()}:${this.pad(duration.seconds())}`;
-    },
-    width() {
-      return this.size * 0.06;
+    playlist: {
+      get() {
+        return this.$store.state.playlist;
+      }
     },
   },
 
   methods: {
-    pad(number) {
-      let numberString = `${number}`;
-      while (numberString.length < 2) {
-        numberString = `0${numberString}`;
-      }
-      return numberString;
+    next() {
+      const newTrackIndex =
+        this.currentTrack == this.playlist.length - 1
+          ? 0
+          : this.currentTrack + 1;
+      this.$store.commit("setCurrentTrack", newTrackIndex);
+      this.$store.dispatch("playFromPlaylist", this.currentTrack);
     },
-    togglePlaying() {
-      this.playing = !this.playing;
+    pause() {
+      this.$store.dispatch("pausePlayer");
     },
-  },
+    play() {
+      this.$store.dispatch("resumePlayer");
+      this.$store.dispatch("createImage", this.playlist[this.currentTrack]);
+    },
+    previous() {
+      const newTrackIndex =
+        this.currentTrack === 0
+          ? this.playlist.length - 1
+          : this.currentTrack - 1;
+      this.$store.commit("setCurrentTrack", newTrackIndex);
+      this.$store.dispatch("playFromPlaylist", this.currentTrack);
+    },
+    stop() {
+      this.$store.dispatch("stopPlayer");
+    }
+  }
 };
 </script>
 
 <style scoped>
-#progressRow {
-  margin-bottom: 2em;
-}
 .v-icon:hover {
   cursor: pointer;
 }
->>> .v-progress-circular__info {
-  flex-direction: column;
-}
-
 </style>

@@ -95,8 +95,6 @@ export default {
           }
         })
         .then(response => {
-          console.log("response");
-          console.log(response.data);
           this.$store.commit("resetPlaylist", response.data);
           this.$forceUpdate();
         });
@@ -115,9 +113,7 @@ export default {
       this.drag = true;
     },
     stopPlayer() {
-      axios.get("http://192.168.1.20:5000/stop").then(() => {
-        console.log("Stopped");
-      });
+      this.$store.dispatch("stopPlayer");
     }
   }
 };

@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import Playlist from "../playlist/playlist.component.vue";
 import Browser from "../browser/browser.component.vue";
 import Player from "../player/player.component.vue";
+import SearchResults from "../searchResults/searchResults.component.vue";
 
 Vue.use(VueRouter);
 
@@ -30,6 +31,11 @@ const routes = [
     path: "/playlist",
     name: "playlist",
     component: Playlist
+  },
+  {
+    path: "/search-results",
+    name: "searchResults",
+    component: SearchResults
   }
 ];
 

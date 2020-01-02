@@ -8,6 +8,9 @@
               <v-subheader :class="`d-flex justify-space-between`">
                 <span class="title">Artists</span>
                 <!-- <search-filter></search-filter> -->
+                <div class="fake-slot">
+                  <player-link></player-link>
+                </div>
               </v-subheader>
               <v-list-item-group id="artist-group">
                 <v-list-item
@@ -23,10 +26,13 @@
           <v-stepper-content step="2">
             <v-list>
               <v-subheader>
-                <span class="title">Albums</span>
-                <span style="margin-left: 1em; cursor: pointer;" @click="backToArtists()"
-                  >Back to artists</span
+                <v-icon style="margin-right: 1em;" v-on="on" @click="e1 = 1"
+                  >mdi-arrow-left</v-icon
                 >
+                <span class="title">Albums</span>
+                <div class="fake-slot">
+                  <player-link></player-link>
+                </div>
               </v-subheader>
               <v-list-item-group>
                 <v-list-item
@@ -42,33 +48,31 @@
           <v-stepper-content step="3">
             <v-list>
               <v-subheader>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-icon style="margin-right: 1em;" v-on="on" @click="e1 = 2"
-                      >mdi-arrow-left</v-icon
-                    >
-                  </template>
-                  <span>Back to albums</span>
-                </v-tooltip>
+                <v-icon style="margin-right: 1em;" v-on="on" @click="e1 = 2"
+                  >mdi-arrow-left</v-icon
+                >
                 <span class="title">Songs</span>
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on }">
-                    <v-icon
-                      style="margin-left: 1em; position: absolute; right: 1em;"
-                      v-on="on"
-                      >mdi-menu</v-icon
-                    >
-                  </template>
+                <div class="fake-slot">
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on }">
+                      <v-icon
+                        class="fake-slot-item"
+                        v-on="on"
+                        >mdi-menu</v-icon
+                      >
+                    </template>
 
-                  <v-list>
-                    <v-list-item @click="playAlbum()">
-                      <v-list-item-title>Play All</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="addAll()">
-                      <v-list-item-title>Add All To Playlist</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                    <v-list>
+                      <!-- <v-list-item @click="playAlbum()">
+                        <v-list-item-title>Play All</v-list-item-title>
+                      </v-list-item> -->
+                      <v-list-item @click="addAll()">
+                        <v-list-item-title>Add All To Playlist</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                  <player-link></player-link>
+                </div>
               </v-subheader>
               <v-list-item-group>
                 <v-list-item v-for="(song, i) in songs" :key="song[3]">
@@ -110,14 +114,14 @@
 <script>
 /* eslint no-console: 0 */
 import axios from "axios";
-// import SearchFilter from '../searchFilter/searchFilter.component.vue';
+import PlayerLink from '../playerLink/playerLink.component.vue';
 
 export default {
   name: "Browser",
 
-  // components: {
-  //   SearchFilter
-  // },
+  components: {
+    PlayerLink
+  },
 
   data: () => {
     return {
@@ -132,7 +136,7 @@ export default {
   },
   created() {
     this.e1 = 1;
-    this.$store.commit('setSearch', true);
+    this.$store.commit("setSearch", true);
     axios.get("http://192.168.1.20:5000/artists").then(response => {
       this.artists = response.data;
     });
@@ -144,6 +148,9 @@ export default {
           artist.toLowerCase().indexOf(this.searchFilter.toLowerCase()) > -1
         );
       });
+    },
+    isXS() {
+      return this.$store.state.isXS;
     },
     searchFilter: {
       get() {
@@ -165,7 +172,7 @@ export default {
       this.$forceUpdate();
     },
     addToPlaylist(i) {
-      this.$store.commit("addSingleToPlaylist", this.songs[i]);
+      this.$store.dispatch("addSingleToPlaylist", this.songs[i]);
       this.plus[i] = false;
       this.$forceUpdate();
     },
@@ -180,7 +187,7 @@ export default {
     },
     backToArtists() {
       this.e1 = 1;
-      this.$store.commit('setSearch', true);
+      this.$store.commit("setSearch", true);
     },
     indexInArray(arr, item) {
       for (let i = 0, len = arr.length; i < len; i++) {
@@ -206,7 +213,6 @@ export default {
       this.songs.forEach((song, i) => {
         this.plus[i] = !this.isArrayInArray(this.$store.state.playlist, song);
       });
-      console.log(this.plus);
       this.$forceUpdate();
     },
     getAlbums(artist) {
@@ -214,7 +220,7 @@ export default {
       axios.get(`http://192.168.1.20:5000/artist/${artist}`).then(response => {
         this.albums = response.data;
         this.e1 = 2;
-        this.$store.commit('setSearch', false);
+        this.$store.commit("setSearch", false);
       });
     },
     getSongs(album) {
@@ -224,7 +230,7 @@ export default {
         .then(response => {
           this.songs = response.data;
           this.e1 = 3;
-          this.$store.commit('setSearch', false);
+          this.$store.commit("setSearch", false);
 
           this.calculatePlus();
         });
@@ -256,3 +262,14 @@ export default {
   }
 };
 </script>
+
+<style>
+.fake-slot {
+  margin-left: 1em;
+  position: absolute;
+  right: 1em;
+}
+.fake-slot-item {
+  margin-left: 0.5em;
+}
+</style>
